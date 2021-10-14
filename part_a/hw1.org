@@ -1,0 +1,287 @@
+#+TITLE: Programming Languages Part A
+
+* Homework 1
+You will write 11 SML functions (and tests for them) related to calendar dates.
+In all problems, a “date” is an SML value of type int*int*int, where the first
+part is the year, the second part is the month, and the third part is the day. A
+“reasonable” date has a positive year, a month between 1 and 12, and a day no
+greater than 31 (or less depending on the month). Your solutions need to work
+correctly only for reasonable dates, but do not check for reasonable dates (that
+is a challenge problem) and many of your functions will naturally work correctly
+for some/all non-reasonable dates. A “day of year” is a number from 1 to 365
+where, for example, 33 represents February 2. (We ignore leap years except in
+one challenge problem.)
+
+1. Write a function =is_older= that takes two dates and evaluates to true or
+   false. It evaluates to true if the first argument is a date that comes before
+   the second argument. (If the two dates are the same, the result is false.)
+
+   #+begin_src sml :session *sml* :exports both
+fun is_older(first : int*int*int, second : int*int*int) =
+    let val year1 = #1 first
+        val month1 = #2 first
+        val day1 = #3 first
+        val year2 = #1 second
+        val month2 = #2 second
+        val day2 = #3 second
+    in year1 < year2 orelse (
+        year1 = year2 andalso (month1 < month2 orelse (
+                                  month1 = month2 andalso day1 < day2)))
+    end
+
+val test1 = is_older ((1,2,3),(2,3,4)) = true
+   #+end_src
+
+   #+RESULTS:
+   : val is_older = fn : (int * int * int) * (int * int * int) -> bool
+   : val test1 = true : bool
+
+2. Write a function number_in_month that takes a list of dates and a month
+   (i.e., an int) and returns how many dates in the list are in the given month.
+
+   #+begin_src sml :session *sml* :exports both
+fun number_in_month (dates : (int*int*int) list, month : int) =
+    if null dates
+    then 0
+    else
+        if #2(hd dates) = month
+        then 1 + number_in_month(tl dates, month)
+        else number_in_month(tl dates, month)
+
+val test2 = number_in_month ([(2012,2,28),(2013,12,1)],2) = 1
+   #+end_src
+
+   #+RESULTS:
+   : val number_in_month = fn : (int * int * int) list * int -> int
+   : val test2 = true : bool
+
+3. Write a function number_in_months that takes a list of dates and a list of
+   months (i.e., an int list) and returns the number of dates in the list of
+   dates that are in any of the months in the list of months. Assume the list of
+   months has no number repeated. Hint: Use your answer to the previous problem.
+
+   #+begin_src sml :session sml :exports both
+fun number_in_months(dates : (int*int*int) list, months : int list) =
+    if null months
+    then 0
+    else number_in_month(dates, hd months) + number_in_months(dates, tl months)
+
+val test3 = number_in_months ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4]) = 3
+   #+end_src
+
+   #+RESULTS:
+   : val number_in_months = fn : (int * int * int) list * int list -> int
+   : val test3 = true : bool
+
+4. Write a function dates_in_month that takes a list of dates and a month (i.e.,
+   an int) and returns a list holding the dates from the argument list of dates
+   that are in the month. The returned list should contain dates in the order
+   they were originally given.
+
+   #+begin_src sml :session *sml* :exports both
+fun dates_in_month(dates : (int*int*int) list, month : int) =
+    if null dates
+    then []
+    else
+        if #2(hd dates) = month
+        then hd dates :: dates_in_month(tl dates, month)
+        else dates_in_month(tl dates, month)
+
+val test4 = dates_in_month([(2012,2,28),(2013,12,1)],2) = [(2012,2,28)]
+   #+end_src
+
+   #+RESULTS:
+   : val dates_in_month = fn :
+   :   (int * int * int) list * int -> (int * int * int) list
+   : val test4 = true : bool
+
+5. Write a function dates_in_months that takes a list of dates and a list of
+   months (i.e., an int list) and returns a list holding the dates from the
+   argument list of dates that are in any of the months in the list of months.
+   Assume the list of months has no number repeated. Hint: Use your answer to
+   the previous problem and SML’s list-append operator (@).
+
+   #+begin_src sml :session *sml* :exports both
+fun dates_in_months(dates : (int*int*int) list, months : int list) =
+    if null months
+    then []
+    else dates_in_month(dates, hd months) @ dates_in_months(dates, tl months)
+
+val test5 = dates_in_months ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4]) = [(2012,2,28),(2011,3,31),(2011,4,28)]
+   #+end_src
+
+   #+RESULTS:
+   : val dates_in_months = fn :
+   :   (int * int * int) list * int list -> (int * int * int) list
+   : val test5 = true : bool
+
+6. Write a function get_nth that takes a list of strings and an int n and
+   returns the nth element of the list where the head of the list is 1st. Do not
+   worry about the case where the list has too few elements: your function may
+   apply hd or tl to the empty list in this case, which is okay.
+
+   #+begin_src sml :session *sml* :exports both
+fun get_nth(strings : string list, n : int) =
+    if n = 1
+    then hd strings
+    else get_nth(tl strings, n - 1)
+
+val test6 = get_nth (["hi", "there", "how", "are", "you"], 2) = "there"
+   #+end_src
+
+   #+RESULTS:
+   : val get_nth = fn : string list * int -> string
+   : val test6 = true : bool
+
+7. Write a function date_to_string that takes a date and returns a string of the
+   form January 20, 2013 (for example). Use the operator ^ for concatenating
+   strings and the library function Int.toString for converting an int to a
+   string. For producing the month part, do not use a bunch of conditionals.
+   Instead, use a list holding 12 strings and your answer to the previous
+   problem. For consistency, put a comma following the day and use capitalized
+   English month names: January, February, March, April, May, June, July,
+   August, September, October, November, December.
+
+   #+begin_src sml :session *sml* :exports both
+fun date_to_string(date : int*int*int) =
+    let val month_names = ["January", "February", "March", "April", "May",
+                           "June", "July", "August", "September", "October",
+                           "November", "December"]
+    in
+        get_nth(month_names, #2 date) ^ " " ^ Int.toString(#3 date) ^ ", " ^ Int.toString(#1 date)
+    end
+
+val test7 = date_to_string (2013, 6, 1) = "June 1, 2013"
+   #+end_src
+
+   #+RESULTS:
+   : [autoloading]
+   : [library $SMLNJ-BASIS/basis.cm is stable]
+   : [library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
+   : [autoloading done]
+   : val date_to_string = fn : int * int * int -> string
+   : val test7 = true : bool
+
+8. Write a function number_before_reaching_sum that takes an int called sum,
+   which you can assume is positive, and an int list, which you can assume
+   contains all positive numbers, and returns an int. You should return an int n
+   such that the first n elements of the list add to less than sum, but the
+   first n + 1 elements of the list add to sum or more. Assume the entire list
+   sums to more than the passed in value; it is okay for an exception to occur
+   if this is not the case.
+
+   #+begin_src sml :session *sml* :exports both
+fun number_before_reaching_sum(sum : int, nums : int list) =
+    if sum - hd nums < 1
+    then 0
+    else 1 + number_before_reaching_sum(sum - hd nums, tl nums)
+
+val test8 = number_before_reaching_sum (10, [1,2,3,4,5]) = 3
+   #+end_src
+
+   #+RESULTS:
+   : val number_before_reaching_sum = fn : int * int list -> int
+   : val test8 = true : bool
+
+9. Write a function what_month that takes a day of year (i.e., an int between 1
+   and 365) and returns what month that day is in (1 for January, 2 for
+   February, etc.). Use a list holding 12 integers and your answer to the
+   previous problem.
+
+   #+begin_src sml :session *sml* :exports both
+fun what_month(day : int) =
+    let val month_lengths = [31,28,31,30,31,30,31,31,30,31,30,31] in
+        number_before_reaching_sum(day, month_lengths) + 1
+    end
+
+val test9 = what_month 70 = 3
+   #+end_src
+
+   #+RESULTS:
+   : val what_month = fn : int -> int
+   : val test9 = true : bool
+
+10. Write a function month_range that takes two days of the year day1 and day2
+    and returns an int list [m1,m2,...,mn] where m1 is the month of day1, m2 is
+    the month of day1+1, ..., and mn is the month of day day2. Note the result
+    will have length day2 - day1 + 1 or length 0 if day1>day2.
+
+    #+begin_src sml :session *sml* :exports both
+fun month_range(day1 : int, day2 : int) =
+    if day1 > day2
+    then []
+    else what_month day1 :: month_range(day1 + 1, day2)
+
+val test10 = month_range (31, 34) = [1,2,2,2]
+    #+end_src
+
+    #+RESULTS:
+    : val month_range = fn : int * int -> int list
+    : val test10 = true : bool
+
+11. Write a function oldest that takes a list of dates and evaluates to an
+    (int*int*int) option. It evaluates to NONE if the list has no dates and SOME
+    d if the date d is the oldest date in the list.
+
+    #+begin_src sml :session *sml* :exports both
+fun oldest(dates : (int*int*int) list) =
+    if null dates
+    then NONE
+    else
+        let val tl_ans = oldest(tl dates) in
+            if isSome tl_ans andalso is_older((valOf tl_ans), hd dates)
+            then tl_ans
+            else SOME (hd dates)
+        end
+
+val test11 = oldest([(2012,2,28),(2011,3,31),(2011,4,28)]) = SOME (2011,3,31)
+    #+end_src
+
+    #+RESULTS:
+    : val oldest = fn : (int * int * int) list -> (int * int * int) option
+    : val test11 = true : bool
+
+12. *Challenge Problem*: Write functions number_in_months_challenge and
+    dates_in_months_challenge that are like your solutions to problems 3 and 5
+    except having a month in the second argument multiple times has no more
+    effect than having it once. (Hint: Remove duplicates, then use previous
+    work.)
+
+    #+begin_src sml :session *sml* :exports both
+fun unique_nums(nums : int list) =
+    let
+        fun exists(num : int, a_list : int list) =
+            if null a_list
+            then false
+            else
+                if num = hd a_list
+                then true
+                else exists(num, tl a_list)
+        fun recursive_unique_nums(some_nums : int list, initial : int list) =
+            if null some_nums
+            then initial
+            else
+                if exists(hd some_nums, tl some_nums)
+                then recursive_unique_nums(tl some_nums, initial)
+                else recursive_unique_nums(tl some_nums, initial @ [hd some_nums])
+    in
+        recursive_unique_nums(nums, [])
+    end
+
+fun number_in_months_challenge(dates : (int*int*int) list, months : int list) =
+    number_in_months(dates, unique_nums months)
+
+fun dates_in_months_challenge(dates : (int*int*int) list, months : int list) =
+    dates_in_months(dates, unique_nums months)
+
+val test12a = number_in_months_challenge ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4,2,3,4]) = 3
+val test12b = dates_in_months_challenge ([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,4]) = [(2012,2,28),(2011,3,31),(2011,4,28)]
+    #+end_src
+
+    #+RESULTS:
+    : val unique_nums = fn : int list -> int list
+    : val number_in_months_challenge = fn : (int * int * int) list * int list -> int
+    : val dates_in_months_challenge = fn :
+    :   (int * int * int) list * int list -> (int * int * int) list
+    : val test12a = true : bool
+    : val test12b = true : bool
