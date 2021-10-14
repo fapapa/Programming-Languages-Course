@@ -285,3 +285,38 @@ val test12b = dates_in_months_challenge ([(2012,2,28),(2013,12,1),(2011,3,31),(2
     :   (int * int * int) list * int list -> (int * int * int) list
     : val test12a = true : bool
     : val test12b = true : bool
+
+13. Challenge Problem: Write a function reasonable_date that takes a date and
+    determines if it describes a real date in the common era. A “real date” has
+    a positive year (year 0 did not exist), a month between 1 and 12, and a day
+    appropriate for the month. Solutions should properly handle leap years. Leap
+    years are years that are either divisible by 400 or divisible by 4 but not
+    divisible by 100. (Do not worry about days possibly lost in the conversion
+    to the Gregorian calendar in the Late 1500s.)
+
+    #+begin_src sml :session *sml* :exports both
+fun reasonable_date(date : int*int*int) =
+    let
+        val year = #1 date
+        val month = #2 date
+        val day = #3 date
+        val feb_days = if (year mod 400 = 0 orelse (year mod 4 = 0 andalso year mod 100 <> 0))
+                       then 29
+                       else 28
+        val month_lengths = [31,feb_days,31,30,31,30,31,31,30,31,30,31]
+        fun month_length(month : int, months : int list) =
+            if month = 1
+            then hd months
+            else month_length(month - 1, tl months)
+    in
+        year > 0 andalso
+        (month > 0 andalso month <= 12) andalso
+        (day > 0 andalso day <= month_length(month, month_lengths))
+    end
+
+val test13 = reasonable_date(2020,2,29)
+    #+end_src
+
+    #+RESULTS:
+    : val reasonable_date = fn : int * int * int -> bool
+    : val test13 = true : bool
