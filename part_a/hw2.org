@@ -22,12 +22,39 @@ after the “Type Summary.”
    William Smith or Freddie William Smith. Only part (d) is specifically about
    this, but the other problems are helpful.
 
+   #+begin_src sml :session *sml* :exports none
+fun same_string(s1 : string, s2 : string) =
+    s1 = s2
+   #+end_src
+
+   #+RESULTS:
+   : val same_string = fn : string * string -> bool
+
    a) Write a function =all_except_option=, which takes a =string= and a =string
       list=. Return =NONE= if the string is not in the list, else return =SOME
-      lst= where =lst= is identical to the argument list except the string is
+      lst= where =lst= is identical to the argument =list= except the string is
       not in it. You may assume the string is in the list at most once. Use
       =same_string=, provided to you, to compare strings. Sample solution is
       around 8 lines.
+
+      #+begin_src sml :session *sml* :exports both
+fun all_except_option(str, strs) =
+    let fun aux(strs, acc) =
+            case (strs, acc) of
+                ([], _) => NONE
+              | (x::xs, checked) => if same_string(str, x) then SOME checked @ xs else aux(xs, x::checked)
+    in
+        aux(strs, [])
+    end
+
+val test1 = all_except_option ("string", ["string"]) = SOME []
+      #+end_src
+
+      #+RESULTS:
+      : stdIn:18.65-18.82 Error: operator and operand do not agree [tycon mismatch]
+      :   operator domain: 'Z list * 'Z list
+      :   operand:         'Y option * string list
+      :   in expression:
 
    b) Write a function =get_substitutions1=, which takes a =string list list= (a
       list of list of strings, the substitutions ) and a =string s= and returns
