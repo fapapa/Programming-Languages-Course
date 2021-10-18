@@ -42,7 +42,7 @@ fun all_except_option(str, strs) =
     let fun aux(strs, acc) =
             case (strs, acc) of
                 ([], _) => NONE
-              | (x::xs, checked) => if same_string(str, x) then SOME checked @ xs else aux(xs, x::checked)
+              | (x::xs, checked) => if same_string(str, x) then SOME (checked @ xs) else aux(xs, x::checked)
     in
         aux(strs, [])
     end
@@ -51,10 +51,8 @@ val test1 = all_except_option ("string", ["string"]) = SOME []
       #+end_src
 
       #+RESULTS:
-      : stdIn:18.65-18.82 Error: operator and operand do not agree [tycon mismatch]
-      :   operator domain: 'Z list * 'Z list
-      :   operand:         'Y option * string list
-      :   in expression:
+      : val all_except_option = fn : string * string list -> string list option
+      : val test1 = true : bool
 
    b) Write a function =get_substitutions1=, which takes a =string list list= (a
       list of list of strings, the substitutions ) and a =string s= and returns
@@ -72,16 +70,49 @@ get_substitutions1([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred",
       substitutions. Example:
 
       #+begin_example sml
-get_substitutions1([["Fred","Fredrick"],["Jeff","Jeffrey"],["Geoff","Jeff","Jeffrey"]],
-"Jeff")
+get_substitutions1([["Fred","Fredrick"],["Jeff","Jeffrey"],["Geoff","Jeff","Jeffrey"]], "Jeff")
 (* answer: ["Jeffrey","Geoff","Jeffrey"] *)
       #+end_example
 
       Use part (a) and ML’s list-append (=@=) but no other helper functions.
       Sample solution is around 6 lines.
 
+      #+begin_src sml :session *sml* :exports both
+fun get_substitutions1(substitutions, s) =
+    case (substitutions, s) of
+        ([], _) => []
+      | (x::xs, s) => case all_except_option (s, x) of
+                          NONE => get_substitutions1 (xs, s)
+                        | SOME lst => lst @ get_substitutions1 (xs, s)
+
+val test2 = get_substitutions1 ([["foo"],["there"]], "foo") = []
+      #+end_src
+
+      #+RESULTS:
+      : val get_substitutions1 = fn : string list list * string -> string list
+      : val test2 = true : bool
+
    c) Write a function =get_substitutions2=, which is like =get_substitutions1=
       except it uses a tail-recursive local helper function.
+
+      #+begin_src sml :session *sml* :exports both
+fun get_substitutions2(substitutions, s) =
+    let fun aux(substitutions) =
+            case substitutions of
+                [] => []
+              | x::xs => case all_except_option (s, x) of
+                             NONE => aux (xs)
+                           | SOME lst => lst @ aux (xs)
+    in
+        aux (substitutions)
+    end
+
+val test3 = get_substitutions2 ([["foo"],["there"]], "foo") = []
+      #+end_src
+
+      #+RESULTS:
+      : val get_substitutions2 = fn : string list list * string -> string list
+      : val test3 = true : bool
 
    d) Write a function =similar_names=, which takes a =string list list= of
       substitutions (as in parts (b) and (c)) and a full name of type
@@ -104,6 +135,29 @@ similar_names([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]]
       Do not eliminate duplicates from the answer. Hint: Use a local helper
       function. Sample solution is around 10 lines.
 
+      #+begin_src sml :session *sml* :exports both
+fun similar_names(substitutions, full_name) =
+    case full_name of
+        {first=f, last=l, middle=m} =>
+        let fun zip_names (substitutions) =
+                case substitutions of
+                    [] => []
+                  | x::xs => {first= x, last= l, middle= m} :: zip_names xs
+        in
+            full_name :: zip_names (get_substitutions2 (substitutions, f))
+        end
+
+val test4 = similar_names ([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]], {first="Fred", middle="W", last="Smith"}) =
+	        [{first="Fred", last="Smith", middle="W"}, {first="Fredrick", last="Smith", middle="W"},
+	         {first="Freddie", last="Smith", middle="W"}, {first="F", last="Smith", middle="W"}]
+      #+end_src
+
+      #+RESULTS:
+      : val similar_names = fn :
+      :   string list list * {first:string, last:'a, middle:'b}
+      :    -> {first:string, last:'a, middle:'b} list
+      : val test4 = true : bool
+
 2. This problem involves a solitaire card game invented just for this question.
    You will write a program that tracks the progress of a game; writing a game
    player is a challenge problem. You can do parts (a)–(e) before understanding
@@ -125,13 +179,61 @@ similar_names([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]]
    preliminary score divided by 2 (and rounded down as usual with integer
    division; use ML’s =div= operator).
 
+   #+begin_src sml :session *sml* :exports both
+datatype suit = Clubs | Diamonds | Hearts | Spades
+datatype rank = Jack | Queen | King | Ace | Num of int
+type card = suit * rank
+
+datatype color = Red | Black
+datatype move = Discard of card | Draw
+
+exception IllegalMove
+   #+end_src
+
+   #+RESULTS:
+   : datatype suit = Clubs | Diamonds | Hearts | Spades
+   : datatype rank = Ace | Jack | King | Num of int | Queen
+   : type card = suit * rank
+   : datatype color = Black | Red
+   : datatype move = Discard of suit * rank | Draw
+   : exception IllegalMove
+
    a) Write a function =card_color=, which takes a card and returns its color
       (spades and clubs are black, diamonds and hearts are red). Note: One
       case-expression is enough.
 
+      #+begin_src sml :session *sml* :exports both
+fun card_color (suit, rank) =
+    case suit of
+        Clubs => Black
+      | Spades => Black
+      | Diamonds => Red
+      | Hearts => Red
+
+val test5 = card_color (Clubs, Num 2) = Black
+      #+end_src
+
+      #+RESULTS:
+      : val card_color = fn : suit * 'a -> color
+      : val test5 = true : bool
+
    b) Write a function =card_value=, which takes a =card= and returns its value
       (numbered cards have their number as the value, aces are 11, everything
       else is 10). Note: One case-expression is enough.
+
+      #+begin_src sml :session *sml* :exports both
+fun card_value (suit, rank) =
+    case rank of
+        Num i => i
+      | Ace => 11
+      | _ => 10
+
+val test6 = card_value (Clubs, Num 2) = 2
+      #+end_src
+
+      #+RESULTS:
+      : val card_value = fn : 'a * rank -> int
+      : val test6 = true : bool
 
    c) Write a function =remove_card=, which takes a list of cards =cs=, a card
       =c=, and an exception =e=. It returns a list that has all the elements of
