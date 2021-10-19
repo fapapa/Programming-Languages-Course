@@ -319,13 +319,12 @@ val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
       : val score = fn : (suit * rank) list * int -> int
       : val test10 = true : bool
 
-   g) Write a function =officiate=, which “runs a game.” It takes a =card list=
-      (the =card-list=) a =move list= (what the player “does” at each point),
-      and an =int= (the =goal=) and returns the score at the end of the game
-      after processing (some or all of) the =moves= in the =move list= in order.
-      Use a locally defined recursive helper function that takes several
-      arguments that together represent the current state of the game. As
-      described above:
+   g) Write a function =officiate=, which “runs a game.” It takes a card list
+      (the =card-list=) a move list (what the player “does” at each point), and
+      an int (the =goal=) and returns the score at the end of the game after
+      processing (some or all of) the =moves= in the move list in order. Use a
+      locally defined recursive helper function that takes several arguments
+      that together represent the current state of the game. As described above:
 
       + The game starts with the =held-cards= being the empty list.
       + The game ends if there are no more moves. (The player chose to stop
@@ -345,7 +344,7 @@ val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
 
    a) Write =score_challenge= and =officiate_challenge= to be like their
       non-challenge counterparts except each ace can have a value of 1 or 11 and
-      score_challenge should always return the least (i.e., best) possible
+      =score_challenge= should always return the least (i.e., best) possible
       score. (Note the game-ends-if-sum-exceeds-goal rule should apply only if
       there is no sum that is less than or equal to the goal.) Hint: This is
       easier than you might think.
