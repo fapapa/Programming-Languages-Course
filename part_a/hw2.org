@@ -389,9 +389,9 @@ val test11 = officiate ([(Hearts, Num 2),(Clubs, Num 4)],[Draw], 15) = 6
         There must be no more moves after a score of 0 is reached even if there
         is another way to get back to 0.
 
-   Notes:
-   + There may be more than one result that meets the requirements above. The
-     autograder should work for any correct strategy — it checks that the result
-     meets the requirements.
-   + This problem is not a continuation of problem 3(a). In this problem, all
-     aces have a value of 11.
+      Notes:
+      + There may be more than one result that meets the requirements above. The
+        autograder should work for any correct strategy — it checks that the result
+        meets the requirements.
+      + This problem is not a continuation of problem 3(a). In this problem, all
+        aces have a value of 11.
