@@ -251,7 +251,7 @@ val test7 = remove_card ([(Hearts, Ace)], (Hearts, Ace), IllegalMove) = []
       #+end_src
 
       #+RESULTS:
-      : stdIn:48.23 Warning: calling polyEqual
+      : stdIn:30.23 Warning: calling polyEqual
       : val remove_card = fn : ''a list * ''a * exn -> ''a list
       : val test7 = true : bool
 
@@ -338,7 +338,31 @@ val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
         goal, the game is over (after drawing). Else play continues with a
         larger =held-cards= and a smaller =card-list=.
 
-   Sample solution for (g) is under 20 lines.
+      Sample solution for (g) is under 20 lines.
+
+      #+begin_src sml :session *sml* :exports both
+fun officiate(card_list, move_list, goal) =
+    let fun aux(deck, moves, held_cards) =
+            case (deck, moves) of
+                (_, []) => score (held_cards, goal)
+              | (_, Discard(c)::ms) => aux (deck, ms, remove_card (held_cards, c, IllegalMove))
+              | ([], Draw::ms) => score (held_cards, goal)
+              | (x::xs, Draw::ms) =>
+                let val new_held = x :: held_cards in
+                    if sum_cards new_held > goal
+                    then score (new_held, goal)
+                    else aux(xs, ms, new_held)
+                end
+    in
+        aux (card_list, move_list, [])
+    end
+
+val test11 = officiate ([(Hearts, Num 2),(Clubs, Num 4)],[Draw], 15) = 6
+      #+end_src
+
+      #+RESULTS:
+      : val officiate = fn : (suit * rank) list * move list * int -> int
+      : val test11 = true : bool
 
 3. Challenge Problems:
 
