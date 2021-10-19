@@ -241,18 +241,83 @@ val test6 = card_value (Clubs, Num 2) = 2
       first one. If =c= is not in the list, raise the exception =e=. You can
       compare cards with ~=~.
 
+      #+begin_src sml :session *sml* :exports both
+fun remove_card(cs, c, e) =
+    case cs of
+        [] => raise e
+      | x::xs => if x = c then xs else x :: remove_card(xs, c, e)
+
+val test7 = remove_card ([(Hearts, Ace)], (Hearts, Ace), IllegalMove) = []
+      #+end_src
+
+      #+RESULTS:
+      : stdIn:48.23 Warning: calling polyEqual
+      : val remove_card = fn : ''a list * ''a * exn -> ''a list
+      : val test7 = true : bool
+
    d) Write a function =all_same_color=, which takes a list of cards and returns
       =true= if all the cards in the list are the same color. Hint: An elegant
       solution is very similar to one of the functions using nested
       pattern-matching in the lectures.
+
+      #+begin_src sml :session *sml* :exports both
+fun all_same_color(cs)=
+    case cs of
+        [] => true
+      | head::[] => true
+      | head::neck::rest => if card_color head = card_color neck
+                            then all_same_color (neck :: rest)
+                            else false
+
+val test8 = all_same_color [(Hearts, Ace), (Hearts, Ace)] = true
+      #+end_src
+
+      #+RESULTS:
+      : val all_same_color = fn : (suit * 'a) list -> bool
+      : val test8 = true : bool
 
    e) Write a function =sum_cards=, which takes a list of cards and returns the
       sum of their values. Use a locally defined helper function that is tail
       recursive. (Take “calls use a constant amount of stack space” as a
       requirement for this problem.)
 
+      #+begin_src sml :session *sml* :exports both
+fun sum_cards(cs) =
+    let fun aux (cs, acc) =
+            case cs of
+                [] => 0 + acc
+              | x::xs => aux (xs, acc + card_value x)
+    in
+        aux (cs, 0)
+    end
+
+val test9 = sum_cards [(Clubs, Num 2),(Clubs, Num 2)] = 4
+      #+end_src
+
+      #+RESULTS:
+      : val sum_cards = fn : ('a * rank) list -> int
+      : val test9 = true : bool
+
    f) Write a function =score=, which takes a =card list= (the held-cards) and
       an =int= (the goal) and computes the score as described above.
+
+      #+begin_src sml :session *sml* :exports both
+fun score(card_list, goal) =
+    let val sum = sum_cards card_list
+        val preliminary = if sum > goal then (sum - goal) * 3
+                          else goal - sum
+    in
+        if all_same_color card_list
+        then preliminary div 2
+        else preliminary
+    end
+
+val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
+      #+end_src
+
+      #+RESULTS:
+      : val score = fn : (suit * rank) list * int -> int
+      : val test10 = true : bool
 
    g) Write a function =officiate=, which “runs a game.” It takes a =card list=
       (the =card-list=) a =move list= (what the player “does” at each point),
