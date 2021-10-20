@@ -373,6 +373,25 @@ val test11 = officiate ([(Hearts, Num 2),(Clubs, Num 4)],[Draw], 15) = 6
       there is no sum that is less than or equal to the goal.) Hint: This is
       easier than you might think.
 
+      #+begin_src sml :session *sml* :exports both
+(* fun card_value (suit, rank) = *)
+(*     case rank of *)
+(*         Num i => i *)
+(*       | Ace => 11 *)
+(*       | _ => 10 *)
+
+fun score(card_list, goal) =
+    let val sum = sum_cards card_list
+        val preliminary = if sum > goal then (sum - goal) * 3
+                          else goal - sum
+    in
+        if all_same_color card_list
+        then preliminary div 2
+        else preliminary
+    end
+fun score_challenge (card_list, goal) =
+      #+end_src
+
    b) Write =careful_player=, which takes a =card-list= and a =goal= and returns
       a =move-list= such that calling =officiate= with the =card-list=, the
       =goal=, and the =move-list= has this behavior:
