@@ -1,4 +1,6 @@
 #+TITLE: Programming Languages Part A
+#+OPTIONS: toc:nil
+#+LATEX_CLASS: koma-report
 
 * Homework 2
 You will write 11 SML functions (not counting local helper functions), 4 related
@@ -23,7 +25,7 @@ after the “Type Summary.”
    this, but the other problems are helpful.
 
    #+begin_src sml :session *sml* :exports none
-fun same_string(s1 : string, s2 : string) =
+fun same_string (s1 : string, s2 : string) =
     s1 = s2
    #+end_src
 
@@ -38,14 +40,13 @@ fun same_string(s1 : string, s2 : string) =
       around 8 lines.
 
       #+begin_src sml :session *sml* :exports both
-fun all_except_option(str, strs) =
-    let fun aux(strs, acc) =
-            case (strs, acc) of
-                ([], _) => NONE
-              | (x::xs, checked) => if same_string(str, x) then SOME (checked @ xs) else aux(xs, x::checked)
-    in
-        aux(strs, [])
-    end
+fun all_except_option (str, strs) =
+    let fun aux (strs, acc) =
+            case strs of
+                [] => NONE
+              | x::xs => if same_string (str, x) then SOME (acc @ xs)
+                         else aux (xs, x::acc)
+    in aux (strs, []) end
 
 val test1 = all_except_option ("string", ["string"]) = SOME []
       #+end_src
@@ -78,12 +79,12 @@ get_substitutions1([["Fred","Fredrick"],["Jeff","Jeffrey"],["Geoff","Jeff","Jeff
       Sample solution is around 6 lines.
 
       #+begin_src sml :session *sml* :exports both
-fun get_substitutions1(substitutions, s) =
-    case (substitutions, s) of
-        ([], _) => []
-      | (x::xs, s) => case all_except_option (s, x) of
-                          NONE => get_substitutions1 (xs, s)
-                        | SOME lst => lst @ get_substitutions1 (xs, s)
+fun get_substitutions1 (substitutions, s) =
+    case (substitutions) of
+        [] => []
+      | x::xs => case all_except_option (s, x) of
+                     NONE => get_substitutions1 (xs, s)
+                   | SOME lst => lst @ get_substitutions1 (xs, s)
 
 val test2 = get_substitutions1 ([["foo"],["there"]], "foo") = []
       #+end_src
@@ -96,18 +97,17 @@ val test2 = get_substitutions1 ([["foo"],["there"]], "foo") = []
       except it uses a tail-recursive local helper function.
 
       #+begin_src sml :session *sml* :exports both
-fun get_substitutions2(substitutions, s) =
-    let fun aux(substitutions) =
+fun get_substitutions2 (substitutions, s) =
+    let fun aux (substitutions, acc) =
             case substitutions of
-                [] => []
+                [] => acc
               | x::xs => case all_except_option (s, x) of
-                             NONE => aux (xs)
-                           | SOME lst => lst @ aux (xs)
-    in
-        aux (substitutions)
-    end
+                             NONE => aux (xs, acc)
+                           | SOME lst => aux (xs, acc @ lst)
+    in aux (substitutions, []) end
 
-val test3 = get_substitutions2 ([["foo"],["there"]], "foo") = []
+val test3 = get_substitutions2 ([["foo"],["there"],["foo","there"]], "foo") =
+            ["there"]
       #+end_src
 
       #+RESULTS:
@@ -136,7 +136,7 @@ similar_names([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie","Fred","F"]]
       function. Sample solution is around 10 lines.
 
       #+begin_src sml :session *sml* :exports both
-fun similar_names(substitutions, full_name) =
+fun similar_names (substitutions, full_name) =
     case full_name of
         {first=f, last=l, middle=m} =>
         let fun zip_names (substitutions) =
@@ -173,8 +173,8 @@ val test4 = similar_names ([["Fred","Fredrick"],["Elizabeth","Betty"],["Freddie"
 
    The objective is to end the game with a low score (0 is best). Scoring works
    as follows: Let =sum= be the sum of the values of the held-cards. If =sum= is
-   greater than =goal=, the preliminary score is three times =(sum−goal)=, else
-   the preliminary score is =(goal −sum)=. The score is the preliminary score
+   greater than =goal=, the preliminary score is three times =(sum-goal)=, else
+   the preliminary score is =(goal-sum)=. The score is the preliminary score
    unless all the held-cards are the same color, in which case the score is the
    preliminary score divided by 2 (and rounded down as usual with integer
    division; use ML’s =div= operator).
@@ -242,10 +242,10 @@ val test6 = card_value (Clubs, Num 2) = 2
       compare cards with ~=~.
 
       #+begin_src sml :session *sml* :exports both
-fun remove_card(cs, c, e) =
+fun remove_card (cs, c, e) =
     case cs of
         [] => raise e
-      | x::xs => if x = c then xs else x :: remove_card(xs, c, e)
+      | x::xs => if x = c then xs else x :: remove_card (xs, c, e)
 
 val test7 = remove_card ([(Hearts, Ace)], (Hearts, Ace), IllegalMove) = []
       #+end_src
@@ -261,7 +261,7 @@ val test7 = remove_card ([(Hearts, Ace)], (Hearts, Ace), IllegalMove) = []
       pattern-matching in the lectures.
 
       #+begin_src sml :session *sml* :exports both
-fun all_same_color(cs)=
+fun all_same_color (cs)=
     case cs of
         [] => true
       | head::[] => true
@@ -282,7 +282,7 @@ val test8 = all_same_color [(Hearts, Ace), (Hearts, Ace)] = true
       requirement for this problem.)
 
       #+begin_src sml :session *sml* :exports both
-fun sum_cards(cs) =
+fun sum_cards (cs) =
     let fun aux (cs, acc) =
             case cs of
                 [] => acc
@@ -302,7 +302,7 @@ val test9 = sum_cards [(Clubs, Num 2),(Clubs, Num 2)] = 4
       an =int= (the goal) and computes the score as described above.
 
       #+begin_src sml :session *sml* :exports both
-fun score(card_list, goal) =
+fun score (card_list, goal) =
     let val sum = sum_cards card_list
         val preliminary = if sum > goal then (sum - goal) * 3
                           else goal - sum
@@ -341,17 +341,17 @@ val test10 = score ([(Hearts, Num 2),(Clubs, Num 4)],10) = 4
       Sample solution for (g) is under 20 lines.
 
       #+begin_src sml :session *sml* :exports both
-fun officiate(card_list, move_list, goal) =
-    let fun aux(deck, moves, held_cards) =
+fun officiate (card_list, move_list, goal) =
+    let fun aux (deck, moves, held_cards) =
             case (deck, moves) of
                 (_, []) => score (held_cards, goal)
-              | (_, Discard(c)::ms) => aux (deck, ms, remove_card (held_cards, c, IllegalMove))
+              | (_, Discard (c)::ms) => aux (deck, ms, remove_card (held_cards, c, IllegalMove))
               | ([], Draw::ms) => score (held_cards, goal)
               | (x::xs, Draw::ms) =>
                 let val new_held = x :: held_cards in
                     if sum_cards new_held > goal
                     then score (new_held, goal)
-                    else aux(xs, ms, new_held)
+                    else aux (xs, ms, new_held)
                 end
     in
         aux (card_list, move_list, [])
@@ -364,8 +364,8 @@ val test12 = officiate ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],
                         42)
              = 3
 
-val test13 = ((officiate([(Clubs,Jack),(Spades,Num(8))],
-                         [Draw,Discard(Hearts,Jack)],
+val test13 = ((officiate ([(Clubs,Jack),(Spades,Num (8))],
+                         [Draw,Discard (Hearts,Jack)],
                          42);
                false)
               handle IllegalMove => true)
@@ -413,7 +413,7 @@ fun officiate_challenge (card_list, move_list, goal) =
     let fun aux (deck, moves, held_cards) =
             case (deck, moves) of
                 (_, []) => score_challenge (held_cards, goal)
-              | (_, Discard(c)::ms) => aux (deck, ms, remove_card (held_cards, c, IllegalMove))
+              | (_, Discard (c)::ms) => aux (deck, ms, remove_card (held_cards, c, IllegalMove))
               | ([], Draw::ms) => score_challenge (held_cards, goal)
               | (x::xs, Draw::ms) =>
                 let val new_held = x :: held_cards in
@@ -460,5 +460,5 @@ val test15 = officiate_challenge ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,
       + There may be more than one result that meets the requirements above. The
         autograder should work for any correct strategy — it checks that the result
         meets the requirements.
-      + This problem is not a continuation of problem 3(a). In this problem, all
+      + This problem is not a continuation of problem 3 (a). In this problem, all
         aces have a value of 11.
