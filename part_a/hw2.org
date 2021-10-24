@@ -397,12 +397,15 @@ fun score_challenge (card_list, goal) =
     let val aces_high_sum = sum_cards card_list
         val sum_goal_diff = (aces_high_sum - goal)
         val ace_count = ace_counter (card_list)
-        val ideal_aces_low = if sum_goal_diff > 0 then sum_goal_diff * 4 div 10 else 0
+        val ideal_aces_low = if sum_goal_diff > 0
+                             then if sum_goal_diff mod 10 > 2
+                                  then sum_goal_diff div 10 + 1
+                                  else sum_goal_diff div 10
+                             else 0
         val num_aces_low = if ideal_aces_low > ace_count then ace_count else ideal_aces_low
-        val preliminary = if aces_high_sum <= goal then goal - aces_high_sum
-                          else if (aces_high_sum - num_aces_low * 10) < goal
-                          then goal - (aces_high_sum - num_aces_low * 10)
-                          else ((aces_high_sum - num_aces_low * 10) - goal) * 3
+        val lowest_points = aces_high_sum - num_aces_low * 10
+        val preliminary = if lowest_points >= goal then (lowest_points - goal) * 3
+                          else goal - lowest_points
     in
         if all_same_color card_list
         then preliminary div 2
@@ -429,8 +432,8 @@ val test14 = score_challenge ([(Hearts, Ace),(Clubs, Num 4)],10) = 5
 
 val test15 = officiate_challenge ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,Ace)],
                                   [Draw,Draw,Draw,Draw,Draw],
-                                  40)
-             = 3
+                                  24)
+             = 0
       #+end_src
 
       #+RESULTS:
