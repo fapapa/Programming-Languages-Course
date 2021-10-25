@@ -467,5 +467,21 @@ val test15 = officiate_challenge ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,
         aces have a value of 11.
 
       #+begin_src sml :session *sml* :exports both
-
+fun careful_player (card_list, goal) =
+    let fun first_of_value (card_list, value) =
+            case card_list of
+                [] => []
+              | c::cs => if card_value c = value then c
+                         else first_of_value (cs, value)
+        fun aux (card_list, held_cards, move_list, points) =
+            case (card_list, held_cards, move_list, points, goal - points) of
+                ([], _, moves, _, _) => moves
+              | (c::cs, held, moves, p, d) =>
+                if d > 10
+                then aux (cs, c::held, Draw::moves, points + card_value c)
+                else if d = 0 then moves
+                else case first_of_value (held, d) of
+                         [] =>
+    in aux (card_list, [], [], 0)
+    end
       #+end_src
