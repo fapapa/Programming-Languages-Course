@@ -465,3 +465,7 @@ val test15 = officiate_challenge ([(Clubs,Ace),(Spades,Ace),(Clubs,Ace),(Spades,
         meets the requirements.
       + This problem is not a continuation of problem 3 (a). In this problem, all
         aces have a value of 11.
+
+      #+begin_src sml :session *sml* :exports both
+
+      #+end_src
