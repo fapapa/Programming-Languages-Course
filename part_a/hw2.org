@@ -479,10 +479,27 @@ fun careful_player (card_list, goal) =
               | (c::cs, held, moves, p, d) =>
                 if d > 10
                 then aux (cs, c::held, moves @ [Draw], p + card_value c)
-                else if d = 0 then moves
-                else case first_of_value (held, (card_value c) + d) of
+                else if d > 0
+                then case first_of_value (held, (card_value c) - d) of
                          NONE => moves
                        | SOME i => moves @ [Discard i, Draw]
+                else moves
     in aux (card_list, [], [], 0)
     end
+
+val card_list = [(Hearts, Num 2), (Diamonds, Num 3), (Clubs, Ace), (Clubs, Queen),
+                 (Diamonds, Num 4), (Hearts, Num 10), (Hearts, Num 2)]
+val move_list = careful_player (card_list, goal)
+val goal = 37
+val test16 = officiate (card_list, move_list, goal)
       #+end_src
+
+      #+RESULTS:
+      : val careful_player = fn : (suit * rank) list * int -> move list
+      : val card_list =
+      :   [(Hearts,Num 2),(Diamonds,Num 3),(Clubs,Ace),(Clubs,Queen),(Diamonds,Num 4),
+      :    (Hearts,Num 10),(Hearts,Num 2)] : (suit * rank) list
+      : val move_list = [Draw,Draw,Draw,Draw,Draw,Discard (Diamonds,Num 3),Draw] :
+      :   move list
+      : val goal = 37 : int
+      : val test16 = 0 : int
