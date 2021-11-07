@@ -172,6 +172,18 @@ val test4b = longest_string4 ["A","B","C"] = "C"
    a val-binding and the ML library’s =o= operator for composing functions.
    Resolve ties like in problem 2.
 
+   #+begin_src sml :session *sml* :exports both
+(* Problem 5 *)
+fun longest_capitalized strings =
+    (longest_string1 o only_capitals) strings
+
+val test5 = longest_capitalized ["A","bc","C"] = "A"
+   #+end_src
+
+   #+RESULTS:
+   : val longest_capitalized = fn : string list -> string
+   : val test5 = true : bool
+
 6. Write a function =rev_string= that takes a =string= and returns the =string=
    that is the same characters in reverse order. Use ML’s =o= operator, the
    library function =rev= for reversing lists, and two library functions in the
