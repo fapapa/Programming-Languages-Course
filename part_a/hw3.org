@@ -12,6 +12,61 @@ answers.
 
 Download ~hw3provided.sml~ from the course website.
 
+#+begin_src sml :session *sml* :exports none
+exception NoAnswer
+
+datatype pattern = Wildcard
+                 | Variable of string
+                 | UnitP
+                 | ConstP of int
+                 | TupleP of pattern list
+                 | ConstructorP of string * pattern
+
+datatype valu = Const of int
+              | Unit
+              | Tuple of valu list
+              | Constructor of string * valu
+
+fun g f1 f2 p =
+    let
+    val r = g f1 f2
+    in
+    case p of
+        Wildcard          => f1 ()
+      | Variable x        => f2 x
+      | TupleP ps         => List.foldl (fn (p,i) => (r p) + i) 0 ps
+      | ConstructorP(_,p) => r p
+      | _                 => 0
+    end
+
+datatype typ = Anything
+             | UnitT
+             | IntT
+             | TupleT of typ list
+             | Datatype of string
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[autoloading]
+[library $SMLNJ-BASIS/basis.cm is stable]
+[library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
+[autoloading done]
+exception NoAnswer
+datatype pattern
+  = ConstP of int
+  | ConstructorP of string * pattern
+  | TupleP of pattern list
+  | UnitP
+  | Variable of string
+  | Wildcard
+datatype valu
+  = Const of int | Constructor of string * valu | Tuple of valu list | Unit
+val g = fn : (unit -> int) -> (string -> int) -> pattern -> int
+datatype typ
+  = Anything | Datatype of string | IntT | TupleT of typ list | UnitT
+#+end_example
+
 1. Write a function =only_capitals= that takes a =string list= and returns a
    string list that has only the strings in the argument that start with an
    uppercase letter. Assume all strings have at least 1 character. Use
