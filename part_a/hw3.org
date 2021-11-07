@@ -216,6 +216,20 @@ in later problems.
    then =first_answer= should raise the exception =NoAnswer=. Hints: Sample
    solution is 5 lines and does nothing fancy.
 
+   #+begin_src sml :session *sml* :exports both
+(* Problem 7 *)
+fun first_answer f xs =
+    case (List.mapPartial f xs) of
+        [] => raise NoAnswer
+      | x::_ => x
+
+val test7 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
+   #+end_src
+
+   #+RESULTS:
+   : val first_answer = fn : ('a -> 'b option) -> 'a list -> 'b
+   : val test7 = true : bool
+
 8. Write a function =all_answers= of type =(’a -> ’b list option) -> ’a list ->
    ’b= list option (notice the 2 arguments are curried). The first argument
    should be applied to elements of the second argument. If it returns =NONE=
