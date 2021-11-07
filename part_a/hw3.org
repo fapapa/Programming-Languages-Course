@@ -190,6 +190,19 @@ val test5 = longest_capitalized ["A","bc","C"] = "A"
    =String= module. (Browse the module documentation to find the most useful
    functions.)
 
+   #+begin_src sml :session *sml* :exports both
+(* Problem 6 *)
+fun rev_string str =
+    (* str !> String.explode !> List.rev !> String.implode *)
+    (String.implode o List.rev o String.explode) str
+
+val test6 = rev_string "abc" = "cba"
+   #+end_src
+
+   #+RESULTS:
+   : val rev_string = fn : string -> string
+   : val test6 = true : bool
+
 -----
 
 The next two problems involve writing functions over lists that will be useful
