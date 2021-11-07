@@ -144,6 +144,28 @@ val test3 = longest_string2 ["A","bc","CA"] = "CA"
    + =longest_string3= and =longest_string4= are defined with val-bindings and
      partial applications of =longest_string_helper=.
 
+   #+begin_src sml :session *sml* :exports both
+(* Problem 4 *)
+fun longest_string_helper f strings =
+    List.foldl (fn (str, curr) => if f (String.size str, String.size curr) then str else curr)
+               "" strings
+
+val longest_string3 = longest_string_helper (fn (s1, s2) => s1 > s2)
+
+val longest_string4 = longest_string_helper (fn (s1, s2) => s1 >= s2)
+
+val test4a = longest_string3 ["A","bc","C"] = "bc"
+
+val test4b = longest_string4 ["A","B","C"] = "C"
+   #+end_src
+
+   #+RESULTS:
+   : val longest_string_helper = fn : (int * int -> bool) -> string list -> string
+   : val longest_string3 = fn : string list -> string
+   : val longest_string4 = fn : string list -> string
+   : val test4a = true : bool
+   : val test4b = true : bool
+
 5. Write a function =longest_capitalized= that takes a =string list= and returns the
    longest string in the list that begins with an uppercase letter, or "" if
    there are no such strings. Assume all strings have at least 1 character. Use
