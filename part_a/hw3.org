@@ -218,10 +218,18 @@ in later problems.
 
    #+begin_src sml :session *sml* :exports both
 (* Problem 7 *)
+
+(* THIS WOULD ALSO WORK, BUT I WASN'T SURE IF mapPartial WAS ALLOWED *)
+(* fun first_answer f xs = *)
+(*     case (List.mapPartial f xs) of *)
+(*         [] => raise NoAnswer *)
+(*       | x::_ => x *)
+
 fun first_answer f xs =
-    case (List.mapPartial f xs) of
-        [] => raise NoAnswer
-      | x::_ => x
+    case List.foldl (fn (x, mem) => case mem of NONE => f x
+                                              | SOME v => SOME v) NONE xs of
+        NONE => raise NoAnswer
+      | SOME v => v
 
 val test7 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
    #+end_src
