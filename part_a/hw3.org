@@ -268,11 +268,22 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
 The remaining problems use these type definitions, which are inspired by the
 type definitions an ML implementation would use to implement pattern matching:
 
-#+begin_example sml
+#+begin_src sml :session *sml* :exports none
 datatype pattern = Wildcard | Variable of string | UnitP | ConstP of int
                  | TupleP of pattern list | ConstructorP of string * pattern
 datatype valu = Const of int | Unit | Tuple of valu list | Constructor of string * valu
-#+end_example
+#+end_src
+
+#+RESULTS:
+: datatype pattern
+:   = ConstP of int
+:   | ConstructorP of string * pattern
+:   | TupleP of pattern list
+:   | UnitP
+:   | Variable of string
+:   | Wildcard
+: datatype valu
+:   = Const of int | Constructor of string * valu | Tuple of valu list | Unit
 
 Given =valu v= and =pattern p=, either =p= /matches/ =v= or not. If it does, the
 match produces a list of =string * valu= pairs; order in the list does not
@@ -297,8 +308,43 @@ matter. The rules for matching should be unsurprising:
 9. [@9] (This problem uses the =pattern= datatype but is not really about
    pattern-matching.) A function =g= has been provided to you.
 
+   #+begin_src sml :session *sml* :exports both
+fun g f1 f2 p =
+    let
+    val r = g f1 f2
+    in
+    case p of
+        Wildcard          => f1 ()
+      | Variable x        => f2 x
+      | TupleP ps         => List.foldl (fn (p,i) => (r p) + i) 0 ps
+      | ConstructorP(_,p) => r p
+      | _                 => 0
+    end
+   #+end_src
+
+   #+RESULTS:
+   : val g = fn : (unit -> int) -> (string -> int) -> pattern -> int
+
    a) Use =g= to define a function =count_wildcards= that takes a pattern and
       returns how many =Wildcard= patterns it contains.
+
+      #+begin_src sml :session *sml* :exports both
+(* Problem 9 *)
+fun count_wildcards pattern =
+    let val counter = ref 0
+        val _ = g (fn () => let val _ = counter := (!counter) + 1 in !counter end)
+                  (fn x => 0)
+                  pattern
+    in
+        !counter
+    end
+
+val test9a = count_wildcards Wildcard = 1
+      #+end_src
+
+      #+RESULTS:
+      : val count_wildcards = fn : pattern -> int
+      : val test9a = true : bool
 
    b) Use =g= to define a function =count_wild_and_variable_lengths= that takes
       a pattern and returns the number of =Wildcard= patterns it contains plus
