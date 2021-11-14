@@ -374,6 +374,25 @@ val test9b = count_wild_and_variable_lengths (Variable("a")) = 1
       a variable in the pattern. We care only about variable names; the
       constructor names are not relevant.
 
+      #+begin_src sml :session *sml* :exports both
+fun count_some_var (s, p) =
+    let val matches = ref 0
+        val _ = g (fn () => 0)
+                  (fn str => if str = s
+                             then let val _ = matches := (!matches) + 1 in !matches end
+                             else !matches)
+                  p
+    in
+        !matches
+    end
+
+val test9c = count_some_var ("x", Variable("x")) = 1
+      #+end_src
+
+      #+RESULTS:
+      : val count_some_var = fn : string * pattern -> int
+      : val test9c = true : bool
+
 10. Write a function =check_pat= that takes a pattern and returns true if and
     only if all the variables appearing in the pattern are distinct from each
     other (i.e., use different strings). The constructor names are not relevant.
