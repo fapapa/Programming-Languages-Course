@@ -351,6 +351,24 @@ val test9a = count_wildcards Wildcard = 1
       the sum of the string lengths of all the variables in the variable
       patterns it contains. (Use =String.size=. We care only about variable
       names; the constructor names are not relevant.)
+
+      #+begin_src sml :session *sml* :exports both
+fun count_wild_and_variable_lengths pattern =
+    let val sum = ref 0
+        val _ = g (fn () => let val _ = sum := (!sum) + 1 in !sum end)
+                  (fn x => let val _ = sum := (!sum) + String.size x in !sum end)
+                  pattern
+    in
+        !sum
+    end
+
+val test9b = count_wild_and_variable_lengths (Variable("a")) = 1
+      #+end_src
+
+      #+RESULTS:
+      : val count_wild_and_variable_lengths = fn : pattern -> int
+      : val test9b = true : bool
+
    c) Use =g= to define a function =count_some_var= that takes a string and a
       pattern (as a pair) and returns the number of times the string appears as
       a variable in the pattern. We care only about variable names; the
