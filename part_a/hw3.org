@@ -51,10 +51,6 @@ fun x !> f = f x
 
 #+RESULTS:
 #+begin_example
-[autoloading]
-[library $SMLNJ-BASIS/basis.cm is stable]
-[library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
-[autoloading done]
 exception NoAnswer
 datatype pattern
   = ConstP of int
@@ -86,8 +82,6 @@ val test1 = only_capitals ["A","B","C"] = ["A","B","C"]
    #+end_src
 
    #+RESULTS:
-   : [autoloading]
-   : [autoloading done]
    : val only_capitals = fn : string list -> string list
    : val test1 = true : bool
 
@@ -220,9 +214,9 @@ in later problems.
 (* Problem 7 *)
 fun first_answer f xs =
     case xs of
-        [] => raise NoAnswer
+        []     => raise NoAnswer
       | x::xs' => case f x of
-                      NONE => first_answer f xs'
+                      NONE   => first_answer f xs'
                     | SOME v => v
 
 val test7 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 4
@@ -246,9 +240,9 @@ val test7 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 
 fun all_answers f xs =
     let fun aux (list, acc) =
             case (list, acc) of
-                ([], _) => acc
+                ([], _)            => acc
               | (x::xs', SOME lst) => case f x of
-                                          NONE => NONE
+                                          NONE   => NONE
                                         | SOME v => aux (xs', SOME (lst @ v))
     in aux (xs, SOME []) end
 
@@ -256,7 +250,7 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
    #+end_src
 
    #+RESULTS:
-   : stdIn:94.13-98.78 Warning: match nonexhaustive
+   : stdIn:325.13-329.78 Warning: match nonexhaustive
    :           (nil,_) => ...
    :           (x :: xs',SOME lst) => ...
    :
@@ -323,10 +317,6 @@ fun g f1 f2 p =
    #+end_src
 
    #+RESULTS:
-   : [autoloading]
-   : [library $SMLNJ-BASIS/basis.cm is stable]
-   : [library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
-   : [autoloading done]
    : val g = fn : (unit -> int) -> (string -> int) -> pattern -> int
 
    a) Use =g= to define a function =count_wildcards= that takes a pattern and
@@ -334,8 +324,7 @@ fun g f1 f2 p =
 
       #+begin_src sml :session *sml* :exports both
 (* Problem 9 *)
-fun count_wildcards pattern =
-    g (fn () => 1) (fn x => 0) pattern
+fun count_wildcards pattern = g (fn () => 1) (fn x => 0) pattern
 
 val test9a = count_wildcards (TupleP [Wildcard, Wildcard]) = 2
       #+end_src
