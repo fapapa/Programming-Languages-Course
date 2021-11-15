@@ -323,6 +323,10 @@ fun g f1 f2 p =
    #+end_src
 
    #+RESULTS:
+   : [autoloading]
+   : [library $SMLNJ-BASIS/basis.cm is stable]
+   : [library $SMLNJ-BASIS/(basis.cm):basis-common.cm is stable]
+   : [autoloading done]
    : val g = fn : (unit -> int) -> (string -> int) -> pattern -> int
 
    a) Use =g= to define a function =count_wildcards= that takes a pattern and
@@ -331,15 +335,9 @@ fun g f1 f2 p =
       #+begin_src sml :session *sml* :exports both
 (* Problem 9 *)
 fun count_wildcards pattern =
-    let val counter = ref 0
-        val _ = g (fn () => let val _ = counter := (!counter) + 1 in !counter end)
-                  (fn x => 0)
-                  pattern
-    in
-        !counter
-    end
+    g (fn () => 1) (fn x => 0) pattern
 
-val test9a = count_wildcards Wildcard = 1
+val test9a = count_wildcards (TupleP [Wildcard, Wildcard]) = 2
       #+end_src
 
       #+RESULTS:
@@ -354,15 +352,9 @@ val test9a = count_wildcards Wildcard = 1
 
       #+begin_src sml :session *sml* :exports both
 fun count_wild_and_variable_lengths pattern =
-    let val sum = ref 0
-        val _ = g (fn () => let val _ = sum := (!sum) + 1 in !sum end)
-                  (fn x => let val _ = sum := (!sum) + String.size x in !sum end)
-                  pattern
-    in
-        !sum
-    end
+    g (fn () => 1) (fn x => String.size x) pattern
 
-val test9b = count_wild_and_variable_lengths (Variable("a")) = 1
+val test9b = count_wild_and_variable_lengths (TupleP [Variable("a"), Variable("a")]) = 2
       #+end_src
 
       #+RESULTS:
@@ -376,17 +368,9 @@ val test9b = count_wild_and_variable_lengths (Variable("a")) = 1
 
       #+begin_src sml :session *sml* :exports both
 fun count_some_var (s, p) =
-    let val matches = ref 0
-        val _ = g (fn () => 0)
-                  (fn str => if str = s
-                             then let val _ = matches := (!matches) + 1 in !matches end
-                             else !matches)
-                  p
-    in
-        !matches
-    end
+    g (fn () => 0) (fn str => if str = s then 1 else 0) p
 
-val test9c = count_some_var ("x", Variable("x")) = 1
+val test9c = count_some_var ("x", TupleP [Variable("x"), Variable("x")]) = 2
       #+end_src
 
       #+RESULTS:
@@ -404,42 +388,35 @@ val test9c = count_some_var ("x", Variable("x")) = 1
     =foldl= and =List.exists= here, but they make it easier.
 
     #+begin_src sml :session *sml* :exports both
+(* Problem 10 *)
 fun check_pat p =
     let fun strings pat =
             case pat of
-                Variable x => [x]
-              | TupleP ps => List.foldl (fn (x, mem) => strings x :: mem) [] ps
+                Variable x        => [x]
+              | TupleP ps         => List.foldl (fn (x, mem) => strings x @ mem) [] ps
+              | ConstructorP(_,p) => strings p
         fun unique strs =
             case strs of
-                [] => true
+                []    => true
               | x::xs => if List.exists (fn s => x = s) xs
                          then false
                          else unique xs
     in
-        unique (strings (p))
+        unique (strings p)
     end
 
-(* val test10 = check_pat (Variable("x")) = true *)
-val first = check_pat (Variable("x")) = true
-val second = check_pat (TupleP [Variable("x"), Variable("x")]) = false
+val test10 = check_pat (Variable("x")) = true
     #+end_src
 
     #+RESULTS:
-    #+begin_example
-    stdIn:403.13-406.80 Error: right-hand-side of clause does not agree with function result type [tycon mismatch]
-      expression:  string list
-      result type:  string
-      in declaration:
-        strings =
-          (fn pat =>
-                (case pat
-                of Variable x => x :: nil
-                 | TupleP ps => ((List.foldl (fn <pat> => <exp>)) nil) ps))
-    stdIn:414.9-414.29 Error: operator and operand do not agree [tycon mismatch]
-      operator domain: ''Z list
-      operand:         string
-      in expression:
-    #+end_example
+    : stdIn:216.52 Warning: calling polyEqual
+    : stdIn:209.13-212.47 Warning: match nonexhaustive
+    :           Variable x => ...
+    :           TupleP ps => ...
+    :           ConstructorP (_,p) => ...
+    :
+    : val check_pat = fn : pattern -> bool
+    : val test10 = true : bool
 
 11. Write a function =match= that takes a =valu * pattern= and returns a
     =(string * valu) list option=, namely =NONE= if the pattern does not match
