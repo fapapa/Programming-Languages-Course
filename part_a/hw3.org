@@ -403,6 +403,44 @@ val test9c = count_some_var ("x", Variable("x")) = 1
     useful. Sample solution is 15 lines. These are hints: We are not requiring
     =foldl= and =List.exists= here, but they make it easier.
 
+    #+begin_src sml :session *sml* :exports both
+fun check_pat p =
+    let fun strings pat =
+            case pat of
+                Variable x => [x]
+              | TupleP ps => List.foldl (fn (x, mem) => strings x :: mem) [] ps
+        fun unique strs =
+            case strs of
+                [] => true
+              | x::xs => if List.exists (fn s => x = s) xs
+                         then false
+                         else unique xs
+    in
+        unique (strings (p))
+    end
+
+(* val test10 = check_pat (Variable("x")) = true *)
+val first = check_pat (Variable("x")) = true
+val second = check_pat (TupleP [Variable("x"), Variable("x")]) = false
+    #+end_src
+
+    #+RESULTS:
+    #+begin_example
+    stdIn:403.13-406.80 Error: right-hand-side of clause does not agree with function result type [tycon mismatch]
+      expression:  string list
+      result type:  string
+      in declaration:
+        strings =
+          (fn pat =>
+                (case pat
+                of Variable x => x :: nil
+                 | TupleP ps => ((List.foldl (fn <pat> => <exp>)) nil) ps))
+    stdIn:414.9-414.29 Error: operator and operand do not agree [tycon mismatch]
+      operator domain: ''Z list
+      operand:         string
+      in expression:
+    #+end_example
+
 11. Write a function =match= that takes a =valu * pattern= and returns a
     =(string * valu) list option=, namely =NONE= if the pattern does not match
     and =SOME lst= where =lst= is the list of bindings if it does. Note that if
