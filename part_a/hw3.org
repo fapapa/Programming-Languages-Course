@@ -144,9 +144,9 @@ fun longest_string_helper f strings =
     List.foldl (fn (str, curr) => if f (String.size str, String.size curr) then str else curr)
                "" strings
 
-val longest_string3 = longest_string_helper (fn (s1, s2) => s1 > s2)
+val longest_string3 = longest_string_helper (op >)
 
-val longest_string4 = longest_string_helper (fn (s1, s2) => s1 >= s2)
+val longest_string4 = longest_string_helper (op >=)
 
 val test4a = longest_string3 ["A","bc","C"] = "bc"
 
@@ -187,8 +187,8 @@ val test5 = longest_capitalized ["A","bc","C"] = "A"
    #+begin_src sml :session *sml* :exports both
 (* Problem 6 *)
 fun rev_string str =
-    (* str !> String.explode !> List.rev !> String.implode *)
-    (String.implode o List.rev o String.explode) str
+    str !> String.explode !> List.rev !> String.implode
+    (* (String.implode o List.rev o String.explode) str *)
 
 val test6 = rev_string "abc" = "cba"
    #+end_src
@@ -237,6 +237,7 @@ val test7 = first_answer (fn x => if x > 3 then SOME x else NONE) [1,2,3,4,5] = 
    uses =@=. Note =all_answers f []= should evaluate to =SOME []=.
 
    #+begin_src sml :session *sml* :exports both
+(* Problem 8 *)
 fun all_answers f xs =
     let fun aux (list, acc) =
             case (list, acc) of
@@ -464,16 +465,20 @@ val test12 = first_match Unit [UnitP] = SOME []
 
 -----
 
-(*Challenge Problem*) Write a function typecheck_patterns that “type-checks” a
+(*Challenge Problem*) Write a function =typecheck_patterns= that “type-checks” a
 pattern list. Types for our made-up pattern language are defined by:
 
-#+begin_example sml
+#+begin_src sml :session *sml* :exports both
 datatype typ = Anything (* any type of value is okay *)
              | UnitT (* type for Unit *)
              | IntT (* type for integers *)
              | TupleT of typ list (* tuple types *)
              | Datatype of string (* some named datatype *)
-#+end_example
+#+end_src
+
+#+RESULTS:
+: datatype typ
+:   = Anything | Datatype of string | IntT | TupleT of typ list | UnitT
 
 =typecheck_patterns= should have type =((string * string * typ) list) * (pattern
 list) -> typ option=. The first argument contains elements that look like
