@@ -250,7 +250,7 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
    #+end_src
 
    #+RESULTS:
-   : stdIn:325.13-329.78 Warning: match nonexhaustive
+   : stdIn:148.13-152.78 Warning: match nonexhaustive
    :           (nil,_) => ...
    :           (x :: xs',SOME lst) => ...
    :
@@ -323,7 +323,7 @@ fun g f1 f2 p =
       returns how many =Wildcard= patterns it contains.
 
       #+begin_src sml :session *sml* :exports both
-(* Problem 9 *)
+(* Problem 9a *)
 fun count_wildcards pattern = g (fn () => 1) (fn x => 0) pattern
 
 val test9a = count_wildcards (TupleP [Wildcard, Wildcard]) = 2
@@ -340,6 +340,7 @@ val test9a = count_wildcards (TupleP [Wildcard, Wildcard]) = 2
       names; the constructor names are not relevant.)
 
       #+begin_src sml :session *sml* :exports both
+(* Problem 9b *)
 fun count_wild_and_variable_lengths pattern =
     g (fn () => 1) (fn x => String.size x) pattern
 
@@ -356,6 +357,7 @@ val test9b = count_wild_and_variable_lengths (TupleP [Variable("a"), Variable("a
       constructor names are not relevant.
 
       #+begin_src sml :session *sml* :exports both
+(* Problem 9c *)
 fun count_some_var (s, p) =
     g (fn () => 0) (fn str => if str = s then 1 else 0) p
 
@@ -398,8 +400,8 @@ val test10 = check_pat (Variable("x")) = true
     #+end_src
 
     #+RESULTS:
-    : stdIn:216.52 Warning: calling polyEqual
-    : stdIn:209.13-212.47 Warning: match nonexhaustive
+    : stdIn:224.52 Warning: calling polyEqual
+    : stdIn:217.13-220.47 Warning: match nonexhaustive
     :           Variable x => ...
     :           TupleP ps => ...
     :           ConstructorP (_,p) => ...
