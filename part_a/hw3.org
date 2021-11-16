@@ -449,6 +449,19 @@ val test11 = match (Const(1), UnitP) = NONE
     pattern in the list that matches. Use =first_answer= and a
     handle-expression. Hints: Sample solution is 3 lines.
 
+    #+begin_src sml :session *sml* :exports both
+(* Problem 12 *)
+fun first_match v ps =
+    SOME (first_answer (fn p => match (v, p)) ps)
+    handle NoAnswer => NONE
+
+val test12 = first_match Unit [UnitP] = SOME []
+    #+end_src
+
+    #+RESULTS:
+    : val first_match = fn : valu -> pattern list -> (string * valu) list option
+    : val test12 = true : bool
+
 -----
 
 (*Challenge Problem*) Write a function typecheck_patterns that “type-checks” a
