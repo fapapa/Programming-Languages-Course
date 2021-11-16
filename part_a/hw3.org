@@ -420,6 +420,29 @@ val test10 = check_pat (Variable("x")) = true
     These are hints: We are not requiring =all_answers= and =ListPair.zip= here,
     but they make it easier.
 
+    #+begin_src sml :session *sml* :exports both
+(* Problem 11 *)
+fun match (valu, pat) =
+    case (valu, pat) of
+        (_, Wildcard)                           => SOME []
+      | (v, Variable s)                         => SOME [(s,v)]
+      | (Unit, UnitP)                           => SOME []
+      | (Const v, ConstP p)                     => if p  = v
+                                                   then SOME []
+                                                   else NONE
+      | (Tuple vs, TupleP ps)                   => all_answers match (ListPair.zip (vs, ps))
+      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2
+                                                   then match (v, p)
+                                                   else NONE
+      | _                                       => NONE
+
+val test11 = match (Const(1), UnitP) = NONE
+    #+end_src
+
+    #+RESULTS:
+    : val match = fn : valu * pattern -> (string * valu) list option
+    : val test11 = true : bool
+
 12. Write a function =first_match= that takes a value and a list of patterns and
     returns a =(string * valu) list option=, namely =NONE= if no pattern in the
     list matches or =SOME lst= where =lst= is the list of bindings for the first
