@@ -36,12 +36,9 @@ datatype typ = Anything
 
     (**** you can put all your code here ****)
 
-infix !>
-fun x !> f = f x
-
 (* Problem 1 *)
 fun only_capitals strings =
-    List.filter (fn str => (str, 0) !> String.sub !> Char.isUpper) strings
+    List.filter (fn str => (Char.isUpper o String.sub) (str, 0)) strings
 
 (* Problem 2 *)
 fun longest_string1 strings =
@@ -69,7 +66,6 @@ fun longest_capitalized strings =
 (* Problem 6 *)
 fun rev_string str =
     str !> String.explode !> List.rev !> String.implode
-    (* (String.implode o List.rev o String.explode) str *)
 
 (* Problem 7 *)
 fun first_answer f xs =
@@ -92,6 +88,7 @@ fun all_answers f xs =
 (* Problem 9a *)
 fun count_wildcards pattern = g (fn () => 1) (fn x => 0) pattern
 
+(* Problem 9b *)
 fun count_wild_and_variable_lengths pattern =
     g (fn () => 1) (fn x => String.size x) pattern
 

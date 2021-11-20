@@ -44,9 +44,6 @@ datatype typ = Anything
              | IntT
              | TupleT of typ list
              | Datatype of string
-
-infix !>
-fun x !> f = f x
 #+end_src
 
 #+RESULTS:
@@ -64,8 +61,6 @@ datatype valu
 val g = fn : (unit -> int) -> (string -> int) -> pattern -> int
 datatype typ
   = Anything | Datatype of string | IntT | TupleT of typ list | UnitT
-infix !>
-val !> = fn : 'a * ('a -> 'b) -> 'b
 #+end_example
 
 1. Write a function =only_capitals= that takes a =string list= and returns a
@@ -76,7 +71,7 @@ val !> = fn : 'a * ('a -> 'b) -> 'b
    #+begin_src sml :session *sml* :exports both
 (* Problem 1 *)
 fun only_capitals strings =
-    List.filter (fn str => (str, 0) !> String.sub !> Char.isUpper) strings
+    List.filter (fn str => (Char.isUpper o String.sub) (str, 0)) strings
 
 val test1 = only_capitals ["A","B","C"] = ["A","B","C"]
    #+end_src
@@ -251,7 +246,7 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
    #+end_src
 
    #+RESULTS:
-   : stdIn:148.13-152.78 Warning: match nonexhaustive
+   : stdIn:100.13-104.78 Warning: match nonexhaustive
    :           (nil,_) => ...
    :           (x :: xs',SOME lst) => ...
    :
@@ -401,8 +396,8 @@ val test10 = check_pat (Variable("x")) = true
     #+end_src
 
     #+RESULTS:
-    : stdIn:224.52 Warning: calling polyEqual
-    : stdIn:217.13-220.47 Warning: match nonexhaustive
+    : stdIn:152.52 Warning: calling polyEqual
+    : stdIn:145.13-148.47 Warning: match nonexhaustive
     :           Variable x => ...
     :           TupleP ps => ...
     :           ConstructorP (_,p) => ...
