@@ -182,8 +182,7 @@ val test5 = longest_capitalized ["A","bc","C"] = "A"
    #+begin_src sml :session *sml* :exports both
 (* Problem 6 *)
 fun rev_string str =
-    str !> String.explode !> List.rev !> String.implode
-    (* (String.implode o List.rev o String.explode) str *)
+    (String.implode o List.rev o String.explode) str
 
 val test6 = rev_string "abc" = "cba"
    #+end_src
@@ -246,7 +245,7 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
    #+end_src
 
    #+RESULTS:
-   : stdIn:100.13-104.78 Warning: match nonexhaustive
+   : stdIn:142.13-146.78 Warning: match nonexhaustive
    :           (nil,_) => ...
    :           (x :: xs',SOME lst) => ...
    :
@@ -396,8 +395,8 @@ val test10 = check_pat (Variable("x")) = true
     #+end_src
 
     #+RESULTS:
-    : stdIn:152.52 Warning: calling polyEqual
-    : stdIn:145.13-148.47 Warning: match nonexhaustive
+    : stdIn:178.52 Warning: calling polyEqual
+    : stdIn:171.13-174.47 Warning: match nonexhaustive
     :           Variable x => ...
     :           TupleP ps => ...
     :           ConstructorP (_,p) => ...
