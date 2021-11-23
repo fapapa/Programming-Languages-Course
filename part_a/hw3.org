@@ -245,7 +245,7 @@ val test8 = all_answers (fn x => if x = 1 then SOME [x] else NONE) [2,3,4,5,6,7]
    #+end_src
 
    #+RESULTS:
-   : stdIn:142.13-146.78 Warning: match nonexhaustive
+   : stdIn:432.13-436.78 Warning: match nonexhaustive
    :           (nil,_) => ...
    :           (x :: xs',SOME lst) => ...
    :
@@ -379,14 +379,15 @@ fun check_pat p =
     let fun strings pat =
             case pat of
                 Variable x        => [x]
+              | Wildcard          => []
+              | UnitP             => []
+              | ConstP _          => []
               | TupleP ps         => List.foldl (fn (x, mem) => strings x @ mem) [] ps
               | ConstructorP(_,p) => strings p
         fun unique strs =
             case strs of
                 []    => true
-              | x::xs => if List.exists (fn s => x = s) xs
-                         then false
-                         else unique xs
+              | x::xs => if List.exists (fn s => x = s) xs then false else unique xs
     in
         unique (strings p)
     end
@@ -395,12 +396,7 @@ val test10 = check_pat (Variable("x")) = true
     #+end_src
 
     #+RESULTS:
-    : stdIn:178.52 Warning: calling polyEqual
-    : stdIn:171.13-174.47 Warning: match nonexhaustive
-    :           Variable x => ...
-    :           TupleP ps => ...
-    :           ConstructorP (_,p) => ...
-    :
+    : stdIn:378.52 Warning: calling polyEqual
     : val check_pat = fn : pattern -> bool
     : val test10 = true : bool
 
@@ -422,21 +418,20 @@ fun match (valu, pat) =
         (_, Wildcard)                           => SOME []
       | (v, Variable s)                         => SOME [(s,v)]
       | (Unit, UnitP)                           => SOME []
-      | (Const v, ConstP p)                     => if p  = v
-                                                   then SOME []
+      | (Const v, ConstP p)                     => if p  = v then SOME [] else NONE
+      | (Tuple vs, TupleP ps)                   => if List.length vs = List.length ps
+                                                   then all_answers match (ListPair.zip (vs, ps))
                                                    else NONE
-      | (Tuple vs, TupleP ps)                   => all_answers match (ListPair.zip (vs, ps))
-      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2
-                                                   then match (v, p)
-                                                   else NONE
+      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2 then match (v, p) else NONE
       | _                                       => NONE
 
-val test11 = match (Const(1), UnitP) = NONE
+(* val test11 = match (Const(1), UnitP) = NONE *)
+val t = match(Tuple[Const 17,Unit,Const 4,Constructor ("egg",Const 4),Constructor ("egg",Constructor ("egg",Const 4))],TupleP[Wildcard,Wildcard]) = NONE
     #+end_src
 
     #+RESULTS:
     : val match = fn : valu * pattern -> (string * valu) list option
-    : val test11 = true : bool
+    : val t = true : bool
 
 12. Write a function =first_match= that takes a value and a list of patterns and
     returns a =(string * valu) list option=, namely =NONE= if no pattern in the

@@ -65,7 +65,7 @@ fun longest_capitalized strings =
 
 (* Problem 6 *)
 fun rev_string str =
-    str !> String.explode !> List.rev !> String.implode
+    (String.implode o List.rev o String.explode) str
 
 (* Problem 7 *)
 fun first_answer f xs =
@@ -101,14 +101,15 @@ fun check_pat p =
     let fun strings pat =
             case pat of
                 Variable x        => [x]
+              | Wildcard          => []
+              | UnitP             => []
+              | ConstP _          => []
               | TupleP ps         => List.foldl (fn (x, mem) => strings x @ mem) [] ps
               | ConstructorP(_,p) => strings p
         fun unique strs =
             case strs of
                 []    => true
-              | x::xs => if List.exists (fn s => x = s) xs
-                         then false
-                         else unique xs
+              | x::xs => if List.exists (fn s => x = s) xs then false else unique xs
     in
         unique (strings p)
     end
@@ -119,13 +120,11 @@ fun match (valu, pat) =
         (_, Wildcard)                           => SOME []
       | (v, Variable s)                         => SOME [(s,v)]
       | (Unit, UnitP)                           => SOME []
-      | (Const v, ConstP p)                     => if p  = v
-                                                   then SOME []
+      | (Const v, ConstP p)                     => if p  = v then SOME [] else NONE
+      | (Tuple vs, TupleP ps)                   => if List.length vs = List.length ps
+                                                   then all_answers match (ListPair.zip (vs, ps))
                                                    else NONE
-      | (Tuple vs, TupleP ps)                   => all_answers match (ListPair.zip (vs, ps))
-      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2
-                                                   then match (v, p)
-                                                   else NONE
+      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2 then match (v, p) else NONE
       | _                                       => NONE
 
 (* Problem 12 *)
